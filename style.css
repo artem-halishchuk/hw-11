@@ -4,6 +4,7 @@
     height: 500px;
     border: 1px solid red;
     position: relative;
+    overflow: hidden;
 }
 .slider .slider__wrapper {
     width: 200%;
@@ -15,6 +16,8 @@
     font-size: 16px;
     display: inline-block;
     height: 500px;
+    box-sizing: border-box; /*что бы бордер не влиял на размер*/
+    border: 1px solid black;
 }
 .slider .slider__arrow {
     position: absolute;
