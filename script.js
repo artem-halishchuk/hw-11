@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', function() {
         static SLIDE_TIME = 5000;
         constructor(selector) {
             this.selector = selector;
-            this.FRAME
+            this.timer = null;
         }
         init() {
             this.slider = document.querySelector(this.selector);
@@ -17,9 +17,20 @@ document.addEventListener('DOMContentLoaded', function() {
             this.arrowrRight.addEventListener('click', ()=>this.nextSlide(Slider.SLIDE_TIME));
         }
 
-        nextSlide(time) {
+        nextSlide(time) { //быстрая прокрутка, мотать к 3-5 слайду, передавать меньшее время
             let frameCount = time/Slider.FRAME_TIME;
-            let step = 50/frameCount
+            let step = 50/frameCount;
+            let currentPosition = 0;
+            this.timer = setInterval(()=>{
+                if(currentPosition <= -50) {
+                    clearInterval(this.timer);
+                    this.timer = null;
+                    //stop
+                    return;
+                }
+                currentPosition -= step;
+
+            }, Slider.FRAME_TIME);
         }
     }
 })
