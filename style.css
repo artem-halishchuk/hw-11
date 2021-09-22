@@ -1,1 +1,34 @@
 @import url(reset.css);
+.slider {
+    width: 960px;
+    height: 500px;
+    border: 1px solid red;
+    position: relative;
+}
+.slider .slider__wrapper {
+    width: 200%;
+    font-size: 0;
+}
+.slider .slider__slide {
+    width: 50%;
+    background-color: #369;
+    font-size: 16px;
+    display: inline-block;
+    height: 500px;
+}
+.slider .slider__arrow {
+    position: absolute;
+    top: 50%;
+    margin-top: -20px;
+    width: 40px;
+    height: 40px;
+    border: 5px solid black;
+    border-radius: 50%;
+    cursor: pointer;
+}
+.slider .slider__arrow-left {
+    left: 20px;
+}
+.slider .slider__arrow-right {
+    right: 20px;
+}
