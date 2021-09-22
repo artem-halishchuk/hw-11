@@ -22,6 +22,8 @@ class Slider {
             if(currentPosition <= -100) {
                 clearInterval(this.timer);
                 this.timer = null; //флаг идет ли анимация
+                this.wrapper.append(this.wrapper.children[0]); //после остановки перекидываем слайды
+                this.wrapper.style.marginLeft = '';
                 //stop
                 return;
             }
@@ -31,7 +33,7 @@ class Slider {
     }
 }
 Slider.FRAME_TIME = 50;
-Slider.SLIDE_TIME = 5000;
+Slider.SLIDE_TIME = 2000;
 document.addEventListener('DOMContentLoaded', function() {
     let slider = new Slider('.slider');
     slider.init();
