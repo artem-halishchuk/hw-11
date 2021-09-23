@@ -8,54 +8,95 @@ class Slider {
         this.wrapper = this.slider.querySelector('.slider__wrapper');
         this.arrowLeft = this.slider.querySelector('.slider__arrow-left');
         this.arrowrRight = this.slider.querySelector('.slider__arrow-right');
+        this.direction = 0;
+
         this.bindEvents();
+
+        this.frameCount = Slider.SLIDE_TIME/Slider.FRAME_TIME; // SLIDE_TIME/FRAME_TIME 2000мС/16мС = 125 кадров за 2 секунды, 62,5 кадра в секунду
+        this.step = 100/this.frameCount; //100% / 62,5 = 1,6% за один шаг здвигаем на 1,6%
+        this.currentPosition = 0; //текущая позиция
+        this.autoMove = 0;
+
+
     }
     bindEvents() {
-        this.slider.addEventListener('click', (event)=>this.nextSlide(Slider.SLIDE_TIME, event));
+        this.slider.addEventListener('click', ()=>this.nextSlide());
+
+        document.onmousemove = () => {
+            let positionFieldX = this.slider.getBoundingClientRect().left;
+            let positionFieldY = this.slider.getBoundingClientRect().top;
+            let widthField = parseInt(window.getComputedStyle(this.slider).width);
+            let heightField = parseInt(window.getComputedStyle(this.slider).height);
+
+            if (event.clientY > positionFieldY && event.clientY < (positionFieldY+heightField)) {
+                if(event.clientX > positionFieldX && event.clientX < (positionFieldX + widthField/2)) {
+                    this.direction = -1;
+                }
+                else  if(event.clientX > (positionFieldX + widthField/2) && event.clientX < (positionFieldX + widthField)) {
+                    this.direction = 1
+                }
+            }
+            else this.direction = 0;
+            console.log(this.direction);
+            if (this.direction === 1) {
+                this.autoMove = setTimeout(()=>{
+                    if (this.timer !== null) return; //проверка идет ли анимация
+                    this.sliderRight();
+                }, 0);
+
+            }
+            else if (this.direction === -1) {
+                this.autoMove = setTimeout(()=>{
+                    if (this.timer !== null) return; //проверка идет ли анимация
+                    this.sliderLeft();
+                }, 0);
+            }
+            else if (this.direction === 0) {
+                clearInterval(this.autoMove);
+
+            }
+        }
+
     }
-
-    nextSlide(time, event) { //быстрая прокрутка, мотать к 3-5 слайду, передавать меньшее время
+    nextSlide() { //быстрая прокрутка, мотать к 3-5 слайду, передавать меньшее время
         if (this.timer !== null) return; //проверка идет ли анимация
-        let frameCount = time/Slider.FRAME_TIME; // SLIDE_TIME/FRAME_TIME 2000мС/16мС = 125 кадров за 2 секунды, 62,5 кадра в секунду
-        let step = 100/frameCount; //100% / 62,5 = 1,6% за один шаг здвигаем на 1,6%
-        let currentPosition = 0; //текущая позиция
+        if (event.target === this.arrowrRight) this.sliderRight();
+        if (event.target === this.arrowLeft) this.sliderLeft();
+    }
+    sliderRight() {
+        this.currentPosition = 0;
+        this.timer = setInterval(()=>{ // запуск интервала в 2 секунды
+            if(this.currentPosition <= -100) {
+                clearInterval(this.timer);
+                this.timer = null; //флаг идет ли анимация
+                this.wrapper.append(this.wrapper.children[0]); //после остановки перекидываем слайды
+                this.wrapper.style.marginLeft = '';
+                return;
+            }
+            this.currentPosition -= this.step;
+            this.wrapper.style.marginLeft = this.currentPosition+'%';
+        }, Slider.FRAME_TIME);
+    }
+    sliderLeft() {
+        this.wrapper.prepend(this.wrapper.children[4]);
+        this.currentPosition = -100;
+        this.timer = setInterval(()=> { // запуск интервала в 2 секунды
+            if(this.currentPosition >= 0) {
 
-        if (event.target === this.arrowrRight) {
-            this.timer = setInterval(()=>{ // запуск интервала в 2 секунды
-
-                if(currentPosition <= -100) {
-                    clearInterval(this.timer);
-                    this.timer = null; //флаг идет ли анимация
-                    this.wrapper.append(this.wrapper.children[0]); //после остановки перекидываем слайды
-                    this.wrapper.style.marginLeft = '';
-                    return;
-                }
-                currentPosition -= step;
-                this.wrapper.style.marginLeft = currentPosition+'%';
-
-            }, Slider.FRAME_TIME);
-        }
-
-        if (event.target === this.arrowLeft) {
-            this.wrapper.prepend(this.wrapper.children[4]);
-            currentPosition = -100;
-            this.timer = setInterval(()=> { // запуск интервала в 2 секунды
-                if(currentPosition >= 0) {
-                    clearInterval(this.timer);
-                    this.timer = null; //флаг идет ли анимация
-                    this.wrapper.prepend(this.wrapper.children[0]); //после остановки перекидываем слайды
-                    this.wrapper.style.marginLeft = '';
-                    return;
-                }
-                currentPosition += step;
-                this.wrapper.style.marginLeft = currentPosition+'%';
-            }, Slider.FRAME_TIME);
-        }
-        
+                clearInterval(this.timer);
+                this.timer = null; //флаг идет ли анимация
+                this.wrapper.prepend(this.wrapper.children[0]); //после остановки перекидываем слайды
+                this.wrapper.style.marginLeft = '';
+                return;
+            }
+            this.currentPosition += this.step;
+            this.wrapper.style.marginLeft = this.currentPosition+'%';
+        }, Slider.FRAME_TIME);
     }
 }
 Slider.FRAME_TIME = 16;
 Slider.SLIDE_TIME = 1500;
+Slider.AUTO_SCROL_TIME = 2000;
 
 document.addEventListener('DOMContentLoaded', function() {
     let slider = new Slider('.slider');
