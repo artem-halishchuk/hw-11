@@ -11,31 +11,52 @@ class Slider {
         this.bindEvents();
     }
     bindEvents() {
-        this.arrowrRight.addEventListener('click', ()=>this.nextSlide(Slider.SLIDE_TIME));
+        this.slider.addEventListener('click', (event)=>this.nextSlide(Slider.SLIDE_TIME, event));
     }
 
-    nextSlide(time) { //быстрая прокрутка, мотать к 3-5 слайду, передавать меньшее время
-        if (this.timer !== null) return;
-        let frameCount = time/Slider.FRAME_TIME;
-        let step = 100/frameCount;
-        let currentPosition = 0;
-        this.timer = setInterval(()=>{
-            if(currentPosition <= -100) {
-                clearInterval(this.timer);
-                this.timer = null; //флаг идет ли анимация
+    nextSlide(time, event) { //быстрая прокрутка, мотать к 3-5 слайду, передавать меньшее время
+        if (this.timer !== null) return; //проверка идет ли анимация
+        let frameCount = time/Slider.FRAME_TIME; // SLIDE_TIME/FRAME_TIME 2000мС/16мС = 125 кадров за 2 секунды, 62,5 кадра в секунду
+        let step = 100/frameCount; //100% / 62,5 = 1,6% за один шаг здвигаем на 1,6%
+        let currentPosition = 0; //текущая позиция
 
-                this.wrapper.append(this.wrapper.children[0]); //после остановки перекидываем слайды
-                this.wrapper.style.marginLeft = '';
-                //stop
-                return;
-            }
-            currentPosition -= step;
-            this.wrapper.style.marginLeft = currentPosition+'%';
-        }, Slider.FRAME_TIME);
+        if (event.target === this.arrowrRight) {
+            this.timer = setInterval(()=>{ // запуск интервала в 2 секунды
+
+                if(currentPosition <= -100) {
+                    clearInterval(this.timer);
+                    this.timer = null; //флаг идет ли анимация
+                    this.wrapper.append(this.wrapper.children[0]); //после остановки перекидываем слайды
+                    this.wrapper.style.marginLeft = '';
+                    return;
+                }
+                currentPosition -= step;
+                this.wrapper.style.marginLeft = currentPosition+'%';
+
+            }, Slider.FRAME_TIME);
+        }
+
+        if (event.target === this.arrowLeft) {
+            this.wrapper.prepend(this.wrapper.children[4]);
+            currentPosition = -100;
+            this.timer = setInterval(()=> { // запуск интервала в 2 секунды
+                if(currentPosition >= 0) {
+                    clearInterval(this.timer);
+                    this.timer = null; //флаг идет ли анимация
+                    this.wrapper.prepend(this.wrapper.children[0]); //после остановки перекидываем слайды
+                    this.wrapper.style.marginLeft = '';
+                    return;
+                }
+                currentPosition += step;
+                this.wrapper.style.marginLeft = currentPosition+'%';
+            }, Slider.FRAME_TIME);
+        }
+        
     }
 }
 Slider.FRAME_TIME = 16;
-Slider.SLIDE_TIME = 2000;
+Slider.SLIDE_TIME = 1500;
+
 document.addEventListener('DOMContentLoaded', function() {
     let slider = new Slider('.slider');
     slider.init();

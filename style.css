@@ -1,21 +1,25 @@
 @import url(reset.css);
 .slider {
-    width: 960px;
-    height: 500px;
+    width: 460px;
+    height: 200px;
     border: 1px solid red;
     position: relative;
     overflow: hidden;
+    margin-left: auto;
+    margin-right: auto;
 }
 .slider .slider__wrapper {
     width: 200%;
     font-size: 0;
+    /*margin-left: -100%;*/
+    /*margin-left: -50%;*/
 }
 .slider .slider__slide {
     width: 50%;
     background-color: #369;
     font-size: 16px;
     display: inline-block;
-    height: 500px;
+    height: 200px;
     box-sizing: border-box; /*что бы бордер не влиял на размер*/
     border: 1px solid black;
 }
@@ -34,4 +38,7 @@
 }
 .slider .slider__arrow-right {
     right: 20px;
+}
+.x {
+    display: flex;
 }
