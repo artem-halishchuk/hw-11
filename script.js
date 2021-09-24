@@ -8,20 +8,29 @@ class Slider {
         this.wrapper = this.slider.querySelector('.slider__wrapper');
         this.arrowLeft = this.slider.querySelector('.slider__arrow-left');
         this.arrowrRight = this.slider.querySelector('.slider__arrow-right');
-        this.direction = 0;
-
         this.bindEvents();
-
         this.frameCount = Slider.SLIDE_TIME/Slider.FRAME_TIME; // SLIDE_TIME/FRAME_TIME 2000мС/16мС = 125 кадров за 2 секунды, 62,5 кадра в секунду
         this.step = 100/this.frameCount; //100% / 62,5 = 1,6% за один шаг здвигаем на 1,6%
         this.currentPosition = 0; //текущая позиция
         this.autoMove = 0;
+        this.direction = 0;
+    }
+    bindEvents() {
+
+
+        this.slider.addEventListener('click', ()=> {
+            //this.direction = 0;
+            this.nextSlide();
+            clearInterval(this.intervalAuto)
+        });
+        console.log(this.direction);
+        //if (this.direction === -1 || this.direction === 1) this.autoSlide();
+        this.autoSlide();
+
 
 
     }
-    bindEvents() {
-        this.slider.addEventListener('click', ()=>this.nextSlide());
-
+    autoSlide() {
         document.onmousemove = () => {
             let positionFieldX = this.slider.getBoundingClientRect().left;
             let positionFieldY = this.slider.getBoundingClientRect().top;
@@ -38,25 +47,14 @@ class Slider {
             }
             else this.direction = 0;
             console.log(this.direction);
-            if (this.direction === 1) {
-                this.autoMove = setTimeout(()=>{
-                    if (this.timer !== null) return; //проверка идет ли анимация
-                    this.sliderRight();
-                }, 0);
-
-            }
-            else if (this.direction === -1) {
-                this.autoMove = setTimeout(()=>{
-                    if (this.timer !== null) return; //проверка идет ли анимация
-                    this.sliderLeft();
-                }, 0);
-            }
-            else if (this.direction === 0) {
-                clearInterval(this.autoMove);
-
-            }
         }
-
+        if (this.direction === 0) return;
+        this.intervalAuto = setInterval(()=>{
+            if (this.timer !== null) return;
+            if (this.direction === 1) this.sliderRight();
+            if (this.direction === -1) this.sliderLeft();
+        }, Slider.SLIDE_TIME_AUTO+Slider.SLIDE_TIME)
+        if(this.direction === 0) clearInterval(this.intervalAuto);
     }
     nextSlide() { //быстрая прокрутка, мотать к 3-5 слайду, передавать меньшее время
         if (this.timer !== null) return; //проверка идет ли анимация
@@ -95,8 +93,9 @@ class Slider {
     }
 }
 Slider.FRAME_TIME = 16;
-Slider.SLIDE_TIME = 1500;
-Slider.AUTO_SCROL_TIME = 2000;
+Slider.SLIDE_TIME = 1000;
+//Slider.AUTO_SCROL_TIME = 2000;
+Slider.SLIDE_TIME_AUTO = 2000;
 
 document.addEventListener('DOMContentLoaded', function() {
     let slider = new Slider('.slider');
