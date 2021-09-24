@@ -23,6 +23,7 @@ class Slider {
         this.autoSlide();
 
         this.toSlide.addEventListener('click', ()=>{
+            if (this.timer !== null) return; //проверка идет ли анимация
             this.direction = 0;
             this.toSlideItem = event.target.dataset.numberSlide;
             this.toSlideFunction();
@@ -32,14 +33,16 @@ class Slider {
         this.currentSlide = this.wrapper.children[0].dataset.numberSlide;
         console.log(this.currentSlide);
         console.log(this.toSlideItem);
-        this.iteration = Math.abs((this.currentSlide - this.toSlideItem));
+        this.iteration = Math.abs(
+            (parseInt(this.currentSlide) - parseInt(this.toSlideItem))
+        );
         if (this.toSlideItem === this.currentSlide) {
             clearInterval(this.timer);
             return;
         }
         if (this.timer !== null) return; //проверка идет ли анимация
-        if (this.currentSlide <= this.toSlideItem) this.sliderRight(Slider.FRAME_TIME/this.toSlideItem);
-        if (this.currentSlide >= this.toSlideItem) this.sliderLeft(Slider.FRAME_TIME/this.toSlideItem);
+        if (this.currentSlide <= this.toSlideItem) this.sliderRight(Slider.FRAME_TIME/this.iteration);
+        if (this.currentSlide >= this.toSlideItem) this.sliderLeft(Slider.FRAME_TIME/this.iteration);
 
     }
     autoSlide() {
