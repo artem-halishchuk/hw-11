@@ -25,38 +25,23 @@ class Slider {
         this.toSlide.addEventListener('click', ()=>{
             this.direction = 0;
             this.toSlideItem = event.target.dataset.numberSlide;
-
             this.toSlideFunction();
         })
     }
     toSlideFunction() {
-
         this.currentSlide = this.wrapper.children[0].dataset.numberSlide;
+        console.log(this.currentSlide);
+        console.log(this.toSlideItem);
         this.iteration = Math.abs((this.currentSlide - this.toSlideItem));
-        console.log(this.iteration);
-
+        if (this.toSlideItem === this.currentSlide) {
+            clearInterval(this.timer);
+            return;
+        }
         if (this.timer !== null) return; //проверка идет ли анимация
+        if (this.currentSlide <= this.toSlideItem) this.sliderRight(Slider.FRAME_TIME/this.toSlideItem);
+        if (this.currentSlide >= this.toSlideItem) this.sliderLeft(Slider.FRAME_TIME/this.toSlideItem);
 
-        this.currentPosition = 0;
-        this.timer = setInterval(()=>{ // запуск интервала в 2 секунды
-
-            if (this.toSlideItem === this.currentSlide) return;
-            if(this.currentPosition <= -100) {
-                clearInterval(this.timer);
-                this.timer = null; //флаг идет ли анимация
-                this.wrapper.append(this.wrapper.children[0]); //после остановки перекидываем слайды
-                this.wrapper.style.marginLeft = '';
-                if (this.toSlideItem !== this.currentSlide) this.toSlideFunction();
-                //else return;
-            }
-            this.currentPosition -= this.step;
-            this.wrapper.style.marginLeft = this.currentPosition+'%';
-        }, Slider.FRAME_TIME/this.iteration);
     }
-
-
-
-
     autoSlide() {
         document.onmousemove = () => {
             let positionFieldX = this.slider.getBoundingClientRect().left;
@@ -75,32 +60,33 @@ class Slider {
         }
         this.intervalAuto = setInterval(()=>{
             if (this.timer !== null) return;
-            if (this.direction === 1) this.sliderRight();
-            if (this.direction === -1) this.sliderLeft();
+            if (this.direction === 1) this.sliderRight(Slider.FRAME_TIME);
+            if (this.direction === -1) this.sliderLeft(Slider.FRAME_TIME);
         }, Slider.SLIDE_TIME_AUTO+Slider.SLIDE_TIME);
         if(this.direction === 0) clearInterval(this.intervalAuto);
     }
 
     nextSlide() { //быстрая прокрутка, мотать к 3-5 слайду, передавать меньшее время
         if (this.timer !== null) return; //проверка идет ли анимация
-        if (event.target === this.arrowrRight) this.sliderRight();
-        if (event.target === this.arrowLeft) this.sliderLeft();
+        if (event.target === this.arrowrRight) this.sliderRight(Slider.FRAME_TIME);
+        if (event.target === this.arrowLeft) this.sliderLeft(Slider.FRAME_TIME);
     }
-    sliderRight() {
+    sliderRight(t) {
         this.currentPosition = 0;
         this.timer = setInterval(()=>{ // запуск интервала в 2 секунды
             if(this.currentPosition <= -100) {
                 clearInterval(this.timer);
                 this.timer = null; //флаг идет ли анимация
                 this.wrapper.append(this.wrapper.children[0]); //после остановки перекидываем слайды
+                if (this.toSlideItem !== this.currentSlide) this.toSlideFunction();
                 this.wrapper.style.marginLeft = '';
                 return;
             }
             this.currentPosition -= this.step;
             this.wrapper.style.marginLeft = this.currentPosition+'%';
-        }, Slider.FRAME_TIME);
+        }, t);
     }
-    sliderLeft() {
+    sliderLeft(t) {
         this.wrapper.prepend(this.wrapper.children[4]);
         this.currentPosition = -100;
         this.timer = setInterval(()=> { // запуск интервала в 2 секунды
@@ -109,30 +95,20 @@ class Slider {
                 clearInterval(this.timer);
                 this.timer = null; //флаг идет ли анимация
                 this.wrapper.prepend(this.wrapper.children[0]); //после остановки перекидываем слайды
+                if (this.toSlideItem !== this.currentSlide) this.toSlideFunction();
                 this.wrapper.style.marginLeft = '';
                 return;
             }
             this.currentPosition += this.step;
             this.wrapper.style.marginLeft = this.currentPosition+'%';
-        }, Slider.FRAME_TIME);
+        }, t);
     }
 }
 Slider.FRAME_TIME = 16;
 Slider.SLIDE_TIME = 1000;
-//Slider.AUTO_SCROL_TIME = 2000;
 Slider.SLIDE_TIME_AUTO = 2000;
 
 document.addEventListener('DOMContentLoaded', function() {
     let slider = new Slider('.slider');
     slider.init();
 })
-
-//в другую сторону обратный порядок
-//1. действия по маргину, смещаем туда
-//2. потом крутим сюда
-//3. перед таймером переместим на тот слайд и добавим маргинов
-//взять последний элемент сделать prepend во врапер и крутим в обратную сторону
-
-//реализация кругляшков - хранить номер слайда на котором находимся
-//и запускать цыклично - когда закончилась первая анимация, то запустилась вторая
-//для этого использоват колбеки в функциях nextSlide(time), который будет говорить, что слайд закончился
